@@ -23,4 +23,4 @@ EngineConfig.ModelsConfig.FoodConfig.health_max = 5
 EngineConfig.WorldConfig.load_model(EngineConfig.ModelsConfig.HerbivoreConfig)
 EngineConfig.WorldConfig.load_model(EngineConfig.ModelsConfig.FoodConfig)
 
-mp.run_loop()
+mp.run_loop(while_alive=True)

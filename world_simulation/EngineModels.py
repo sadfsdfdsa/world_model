@@ -47,7 +47,11 @@ class KillerEntity(BeingEntity):
     pass
 
 
-class FoodEntity:
+class NonBeingEntity:
+    pass
+
+
+class FoodEntity(NonBeingEntity):
     pass
 
 
@@ -57,11 +61,11 @@ class FoodObject(BaseObject, FoodEntity):
         super().__init__(row, column, config)
 
     def tick(self, world):
+        if self.age_now >= self.age or self.health <= 0:
+            return Event.Die()
         self.age_now += 1
         if self.config.health_reduce_flag:
             self.health -= 1
-        if self.age_now >= self.age or self.health <= 0:
-            return Event.Die()
         return Event.Stay()
 
     def info(self) -> str:
@@ -81,13 +85,11 @@ class PredatorObject(BaseObject, KillerEntity):
         super().__init__(column, row, config)
 
     def tick(self, world):
-        self.age_now += 1
-
-        if self.config.health_reduce_flag:
-            self.health -= 1
-
         if self.age_now >= self.age or self.health <= 0:
             return Event.Die()
+        self.age_now += 1
+        if self.config.health_reduce_flag:
+            self.health -= 1
 
         if self.health >= 10:
             return Event.Reproduce(self.produce_child())
@@ -113,13 +115,12 @@ class HerbivoreObject(BaseObject, PeacefulEntity):
         self.optima_coords_last = (self.row, self.column)
 
     def tick(self, world):
-        self.age_now += 1
-
-        if self.config.health_reduce_flag:
-            self.health -= 1
-
         if self.age_now >= self.age or self.health <= 0:
             return Event.Die()
+
+        self.age_now += 1
+        if self.config.health_reduce_flag:
+            self.health -= 1
 
         if self.health >= 10:
             self.health -= 5

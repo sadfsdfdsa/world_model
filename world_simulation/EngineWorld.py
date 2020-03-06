@@ -1,21 +1,20 @@
 from world_simulation.EngineConfig import *
+from world_simulation.EngineLogger import EngineLogger
 
 
 class WorldEngine:
     class State:
         iteration = 0
-
         objects = []
-
-    class Log:
-        log = []
 
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.world = [[0 for _ in range(x)] for _ in range(y)]
-        self.ModelsConfig = EngineConfig.ModelsConfig
         self.WorldConfig = EngineConfig.WorldConfig
+        self.FoodConfig = EngineConfig.ModelsConfig.FoodConfig
+        # todo logger
+        self.Logger = EngineLogger
 
     def configure_map(self) -> None:
         for obj in self.WorldConfig.use_models:
@@ -57,6 +56,13 @@ class WorldEngine:
                     return False
         return True
 
+    @property
+    def __being_entities_in_world(self):
+        for obj in self.State.objects:
+            if isinstance(obj, BeingEntity):
+                return True
+        return False
+
     def __create_instance(self, config):
         column, row = self.__random_position()
         tmp: object = config.model(column, row, config)
@@ -72,8 +78,8 @@ class WorldEngine:
 
     def tick(self) -> None:
         for i in range(
-                randint(self.ModelsConfig.FoodConfig.spawn_number_min, self.ModelsConfig.FoodConfig.spawn_number_max)):
-            self.__create_instance(self.ModelsConfig.FoodConfig)
+                randint(self.FoodConfig.spawn_number_min, self.FoodConfig.spawn_number_max)):
+            self.__create_instance(self.FoodConfig)
 
         for obj in self.State.objects:
             prev_coord = (obj.row, obj.column)
@@ -99,17 +105,24 @@ class WorldEngine:
 
         self.State.iteration += 1
 
-    def run_loop(self, number: int = -1):
+    def run_loop(self, number: int = -1, step_by_step: bool = False, while_alive: bool = False):
         self.configure_map()
         self.mp_draw()
 
         if number > 0:
             for i in range(number):
                 self.tick()
+                self.mp_draw()
+                if while_alive and not self.__being_entities_in_world:
+                    break
             self.mp_draw()
             return
 
         while True:
-            input()
+            if step_by_step:
+                input()
             self.tick()
             self.mp_draw()
+
+            if while_alive and not self.__being_entities_in_world:
+                return
