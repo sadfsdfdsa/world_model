@@ -11,7 +11,7 @@ setuptools.setup(
     description="Package with world model for simulation",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/sadfsdfdsa/world_model",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
